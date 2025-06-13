@@ -12,6 +12,8 @@ import {
   useWallets,
 } from "@particle-network/connectkit";
 
+import { mainnet } from '@particle-network/connectkit/chains';
+
 // Connectkit uses Viem, so Viem's features can be utilized
 import { formatEther, parseEther } from "viem";
 
@@ -92,7 +94,7 @@ export default function Home() {
   const fetchBalance = async () => {
     try {
       if (!address) return;
-      const balanceResponse = await publicClient?.getBalance({ address });
+      const balanceResponse = await publicClient?.getBalance({ address: address as `0x${string}` });
       const balanceInEther = formatEther(balanceResponse!);
       console.log(balanceResponse);
       setBalance(parseFloat(balanceInEther).toFixed(4)); // Display balance with 4 decimal places
@@ -113,9 +115,10 @@ export default function Home() {
   // Option 1: Send transaction using ethers.js with a custom EIP-1193 provider
   const executeTxEthers = async () => {
     const tx = {
-      to: recipientAddress,
-      value: parseEther("0.01"), // Set value to 0.01 Ether
-      data: "0x", // No data, as there is no contract interaction
+      to: recipientAddress as `0x${string}`,
+      value: BigInt(1e16), // Set value to 0.01 Ether
+      data: "0x" as `0x${string}`, // No data, as there is no contract interaction
+      chain: mainnet,
     };
 
     setIsSending(true);
@@ -147,11 +150,12 @@ export default function Home() {
   const executeTxNative = async () => {
     try {
       const tx = {
-        to: recipientAddress,
-        value: parseEther("0.01"), // Set value to 0.01 Ether
-        data: "0x", // No data, as there is no contract interaction
-        chainId: primaryWallet.chainId, // Current chainId
-        account: primaryWallet.accounts[0], // Primary account
+        to: recipientAddress as `0x${string}`,
+        value: BigInt(1e16), // 0.01 ETH
+        data: "0x" as `0x${string}`, // or real encoded function call
+        chainId: primaryWallet.chainId,
+        account: primaryWallet.accounts[0] as `0x${string}`,
+        chain: mainnet,
       };
 
       setIsSending(true);
